@@ -101,7 +101,7 @@ def addVideo(v, BC):
         return
     for e in Endpoints[BC]:
         if (e, v) in CVE.keys():
-            if Latencies[e, BC] < Latencies[e, CVE[(e, v)]]:
+            if Latencies[e][BC] < Latencies[e][CVE[(e, v)]]:
                 CVE[(e, v)] = BC
         else:
             CVE[(e, v)] = BC
