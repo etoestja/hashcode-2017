@@ -75,7 +75,11 @@ def read_file(filename):
         heapq.heappush(RH, (goodness(Rv, Re, Rn), r, Rv, Re, Rn))
 
 def addVideo(e, v, BC):
-    CVE[(e, v)] = BC
+    for e in Endpoints[BC]:
+        if (e, v) in CVE.keys():
+            CVE[(e, v)].append(BC)
+        else:
+            CVE[(e, v)] = [BC]
     CachedVideos[BC].append(v)
 
 def printState():
@@ -91,13 +95,18 @@ def processQ():
     v = req[2]
     e = req[3]
     n = req[4]
+    g = req[0]
+    g2 = goodness(v, e, n)
+    if g2 != g:
+        heapq.heappush(RH, (g2, req[1], v, e, n))
+        return
+
     BC = getBC(e, S[v])
     if BC < 0:
         return
     if (e, v) in CVE.keys():
-        if CVE[(e, v)] != BC:
-            heapq.heappush(RH, (goodness(v, e, n), req[1], v, e, n))
-        return
+        if BC in CVE[(e, v)]:
+            return
     addVideo(e, v, BC)
 
 def write_answer(filename):
