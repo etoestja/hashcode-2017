@@ -91,12 +91,13 @@ def read_file(filename):
         Requests.append([Rv, Re, Rn])
         heapq.heappush(RH, (goodness(Rv, Re, Rn), r, Rv, Re, Rn))
 
-def addVideo(e, v, BC):
+def addVideo(v, BC):
+    if v in CachedVideos[BC]:
+        return
     for e in Endpoints[BC]:
         if (e, v) in CVE.keys():
-            CVE[(e, v)].append(BC)
-        else:
-            CVE[(e, v)] = [BC]
+            if Latencies[e, BC] < Latencies[e, CVE[(e, v)]]:
+                CVE[(e, v)] = BC
     CachedVideos[BC].append(v)
 
 def printState():
@@ -123,9 +124,9 @@ def processQ():
     if BC < 0:
         return
     if (e, v) in CVE.keys():
-        if BC in CVE[(e, v)]:
+        if BC != CVE[(e, v)]:
             return
-    addVideo(e, v, BC)
+    addVideo(v, BC)
 
 def write_answer(filename):
     out = open(filename, 'w')
