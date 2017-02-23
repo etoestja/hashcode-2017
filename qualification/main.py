@@ -101,5 +101,8 @@ def main():
     print(S)
     out = open(sys.argv[2], 'w')
 
+    while len(RH) > 0:
+        processQ()
+
 if __name__ == '__main__':
     main()
