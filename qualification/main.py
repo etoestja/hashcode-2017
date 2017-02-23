@@ -13,9 +13,6 @@ S = []
 # Cached videos endpoints (endpoint e, video e) => which last cache server?
 CVE = {}
 
-# latencies for BestCache list (endpt i)
-Latencies = []
-
 # which videos on server i?
 CachedVideos = {}
 
@@ -25,35 +22,55 @@ RH = []
 # best by Ld-Lc server for endpoint i
 BestCache = []
 
+def remaining_size(cs_index):
+    s = 0
+    global CachedVideos, X
+    for v in CachedVideos[cs_index]:
+        s += S[v]
+    return(X - s)
+
+def getBC(e, size):
+    global BestCache
+    for cc in BestCache[e]:
+        if remaining_size(cc[0]) >= size:
+            return(cc[0])
+    return(-1)
+
+
 def goodness(v, e, n):
-    return(0)
+    global S
+    return(n * getBC(e, S[v]) / S[v])
 
 def get_arr(inp):
     return([int(k) for k in inp.readline().split()])
 
 def read_file(filename):
     inp = open(filename, 'r')
-    global V, E, R, C, X, S
+
+    global V, E, R, C, X
     [V, E, R, C, X] = get_arr(inp)
+
+    global S
+    S = get_arr(inp)
+
     global CachedVideos
     for c in range(C):
         CachedVideos[c] = []
 
-    S = get_arr(inp)
+    global BestCache
+    BestCache = [0] * E
     for e in range(E):
-        print("reading {}".format(e))
         [Ld, K] = get_arr(inp)
-        print(Ld, K)
+        BCList = []
         for c in range(K):
-            print("reading _{}".format(c))
             [c, Lc] = get_arr(inp)
             Lc = Ld - Lc
-            print("{}, {}".format(c, Lc))
+            BCList.append((c, Lc))
+        sorted(BCList, key = lambda x: -x[1])
+        BestCache[e] = BCList
 
-    global Requests
     for r in range(R):
         [Rv, Re, Rn] = get_arr(inp)
-        print(Rv, Re, Rn)
 
 def main():
     if len(sys.argv) < 3:
