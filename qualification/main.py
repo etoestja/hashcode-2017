@@ -73,20 +73,23 @@ def read_file(filename):
         [Rv, Re, Rn] = get_arr(inp)
 
 
+def addVideo(e, v, BC):
+    CVE[(e, v)] = BC
+    CachedVideos[BC].append(v)
 
 def processQ():
     req = heapq.heappop(RH)
-
     v = req[2]
     e = req[3]
     n = req[4]
-
+    BC = getBC(e, S[v])
+    if BC < 0:
+        return
     if (e, v) in CVE.keys():
-        if CVE[(e, v)] == GetBC(e, S[v]):
-            return
-        else:
+        if CVE[(e, v)] != BC:
             heapq.heappush(RH, (goodness(v, e, n), req[1], v, e, n))
-
+        return
+    addVideo(e, v, BC)
 
 def main():
     if len(sys.argv) < 3:
