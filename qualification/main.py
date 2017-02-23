@@ -1,14 +1,32 @@
 import sys
+import heapq
 
 V = 0
 E = 0
 R = 0
 C = 0
 X = 0
+
+# sizes of videos
 S = []
 
-Requests = []
-Latencies = [[]]
+# Cached videos endpoints (endpoint e, video e) => which last cache server?
+CVE = {}
+
+# latencies for BestCache list (endpt i)
+Latencies = []
+
+# which videos on server i?
+CachedVideos = {}
+
+# heap of requests
+RH = []
+
+# best by Ld-Lc server for endpoint i
+BestCache = []
+
+def goodness(v, e, n):
+    return(0)
 
 def get_arr(inp):
     return([int(k) for k in inp.readline().split()])
@@ -17,6 +35,10 @@ def read_file(filename):
     inp = open(filename, 'r')
     global V, E, R, C, X, S
     [V, E, R, C, X] = get_arr(inp)
+    global CachedVideos
+    for c in range(C):
+        CachedVideos[c] = []
+
     S = get_arr(inp)
     for e in range(E):
         print("reading {}".format(e))
@@ -31,7 +53,6 @@ def read_file(filename):
     global Requests
     for r in range(R):
         [Rv, Re, Rn] = get_arr(inp)
-        Requests.append([Rv, Re, Rn, 0])
         print(Rv, Re, Rn)
 
 def main():
