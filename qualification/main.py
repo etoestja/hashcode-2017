@@ -1,3 +1,4 @@
+import cProfile
 import sys
 import heapq
 
@@ -24,6 +25,9 @@ BestCache = []
 
 # array of requests
 Requests = []
+
+# endpoints for cache i
+Endpoints = {}
 
 def remaining_size(cs_index):
     s = 0
@@ -62,9 +66,10 @@ def read_file(filename):
     global S
     S = get_arr(inp)
 
-    global CachedVideos
+    global CachedVideos, Endpoints
     for c in range(C):
         CachedVideos[c] = []
+        Endpoints[c] = []
 
     global BestCache
     BestCache = [0] * E
@@ -72,6 +77,7 @@ def read_file(filename):
         [Ld, K] = get_arr(inp)
         BCList = []
         for c in range(K):
+            Endpoints[c].append(e)
             [c, Lc] = get_arr(inp)
             Lc = Ld - Lc
             BCList.append((c, Lc))
@@ -96,6 +102,7 @@ def printState():
     print("CachedVideos: " + str(CachedVideos))
     print("RH: " + str(RH))
     print("BestCache: " + str(BestCache))
+    print("Endpoints: " + str(Endpoints))
 
 def processQ():
     req = heapq.heappop(RH)
@@ -192,8 +199,11 @@ def main():
     read_file(sys.argv[1])
 
     printState()
+    i = 0
     while len(RH) > 0:
+        print(i, len(RH))
         processQ()
+        i += 1
     printState()
 
     write_answer(sys.argv[2])
