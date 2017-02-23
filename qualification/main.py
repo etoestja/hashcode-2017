@@ -22,6 +22,9 @@ RH = []
 # best by Ld-Lc server for endpoint i
 BestCache = []
 
+# array of requests
+Requests = []
+
 def remaining_size(cs_index):
     s = 0
     global CachedVideos, X
@@ -36,10 +39,16 @@ def getBC(e, size):
             return(cc[0])
     return(-1)
 
+def getBCVal(e, size):
+    global BestCache
+    for cc in BestCache[e]:
+        if remaining_size(cc[0]) >= size:
+            return(cc[1])
+    return(-1)
 
 def goodness(v, e, n):
     global S
-    return(n * getBC(e, S[v]) / S[v])
+    return(-n * getBCVal(e, S[v]) / S[v])
 
 def get_arr(inp):
     return([int(k) for k in inp.readline().split()])
@@ -66,12 +75,14 @@ def read_file(filename):
             [c, Lc] = get_arr(inp)
             Lc = Ld - Lc
             BCList.append((c, Lc))
+        
         sorted(BCList, key = lambda x: -x[1])
         BestCache[e] = BCList
 
-    global RH
+    global RH, Requests
     for r in range(R):
         [Rv, Re, Rn] = get_arr(inp)
+        Requests.append([Rv, Re, Rn])
         heapq.heappush(RH, (goodness(Rv, Re, Rn), r, Rv, Re, Rn))
 
 def addVideo(e, v, BC):
@@ -145,10 +156,33 @@ def write_answer(filename):
                 out.write("{} ".format(x))
             out.write("\n")
 
-def testVideos():
-    global CachedVideos
-    CachedVideos[0] = [1,2]
-    CachedVideos[1] = [3,4]
+def getReward():
+    s = 0
+    global Requests, BestCache, CachedVideos
+
+    global C, S, X
+    for c in range(C):
+        s = 0
+        for v in CachedVideos[c]:
+            s += S[v]
+        if s > X:
+            print("CACHE SIZE ERROR")
+            return(-1)
+
+    reqs = 0
+    for r in range(R):
+        [v, e, n] = Requests[r]
+        reqs += n
+        best_val = 0
+        for cc in BestCache[e]:
+            for vv in CachedVideos[cc[0]]:
+                if vv == v:
+                    if cc[1] > best_val:
+                        best_val = cc[1]
+        best_val *= n
+        s += best_val
+    print(s, reqs)
+    return(s * 1000 / reqs)
 
 def main():
     if len(sys.argv) < 3:
@@ -157,13 +191,13 @@ def main():
 
     read_file(sys.argv[1])
 
-
     printState()
-    write_answer(sys.argv[2])
-
-
     while len(RH) > 0:
         processQ()
+    printState()
+
+    write_answer(sys.argv[2])
+    print("REWARD: {}".format(getReward()))
 
 if __name__ == '__main__':
     main()
