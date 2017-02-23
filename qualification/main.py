@@ -29,6 +29,9 @@ Requests = []
 # endpoints for cache i
 Endpoints = {}
 
+# latencies
+Latencies = []
+
 def remaining_size(cs_index):
     s = 0
     global CachedVideos, X
@@ -76,10 +79,12 @@ def read_file(filename):
     for e in range(E):
         [Ld, K] = get_arr(inp)
         BCList = []
+        Latencies.append([-1] * C)
         for c in range(K):
             Endpoints[c].append(e)
             [c, Lc] = get_arr(inp)
             Lc = Ld - Lc
+            Latencies[e][c] = Lc
             BCList.append((c, Lc))
         
         sorted(BCList, key = lambda x: -x[1])
@@ -108,6 +113,7 @@ def printState():
     print("RH: " + str(RH))
     print("BestCache: " + str(BestCache))
     print("Endpoints: " + str(Endpoints))
+    print("Latencies: " + str(Latencies))
 
 def processQ():
     req = heapq.heappop(RH)
@@ -204,15 +210,16 @@ def getReward():
 def main():
     if len(sys.argv) < 3:
         sys.exit('Usage: %s input.in output.out'.format(sys.argv[0]))
-    
 
     read_file(sys.argv[1])
+
+    print("Reading done")
 
     printState()
     i = 0
     while len(RH) > 0:
-        print(i, len(RH))
-        processQ()
+        print(i, len(RH), len(CVE))
+        cProfile.run('processQ()')
         i += 1
     printState()
 
