@@ -31,23 +31,6 @@ def goodness(v, e, n):
 def get_arr(inp):
     return([int(k) for k in inp.readline().split()])
 
-def processQ():
-    req = heapq.heappop(RH)
-
-    v = req[2]
-    e = req[3]
-    n = req[4]
-
-    if (e, v) in CVE.keys():
-        if CVE[(e, v)] == GetBC(e, S[v]):
-            return
-        else:
-            heapq.heappush(RH, (goodness(v, e, n), req[1], v, e, n))
-
-
-
-    if BestCache[req[3]]
-
 def read_file(filename):
     inp = open(filename, 'r')
     global V, E, R, C, X, S
@@ -71,6 +54,22 @@ def read_file(filename):
     for r in range(R):
         [Rv, Re, Rn] = get_arr(inp)
         print(Rv, Re, Rn)
+
+
+
+def processQ():
+    req = heapq.heappop(RH)
+
+    v = req[2]
+    e = req[3]
+    n = req[4]
+
+    if (e, v) in CVE.keys():
+        if CVE[(e, v)] == GetBC(e, S[v]):
+            return
+        else:
+            heapq.heappush(RH, (goodness(v, e, n), req[1], v, e, n))
+
 
 def main():
     if len(sys.argv) < 3:
