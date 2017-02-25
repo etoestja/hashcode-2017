@@ -117,21 +117,16 @@ def printState():
     print("Endpoints: " + str(Endpoints))
     print("Latencies: " + str(Latencies))
 
-i = 0
-
 def processQ():
     req = heapq.heappop(RH)
     v = req[2]
     e = req[3]
     n = req[4]
     g = req[0]
-    global i
-    i += 1
-    if i % 100 == 0:
-        g2 = goodness(v, e, n)
-        if g2 != g:
-            heapq.heappush(RH, (g2, req[1], v, e, n))
-            return
+    g2 = goodness(v, e, n)
+    if g2 != g:
+        heapq.heappush(RH, (g2, req[1], v, e, n))
+        return
 
     BC = getBC(e, S[v])
     if BC < 0:
