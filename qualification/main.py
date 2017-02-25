@@ -1,3 +1,4 @@
+from sets import Set
 import cProfile
 import sys
 import heapq
@@ -32,6 +33,9 @@ Endpoints = {}
 # latencies
 Latencies = []
 
+# SizeUsed
+SizeUsed = 0
+
 def remaining_size(cs_index):
     s = 0
     global CachedVideos, X
@@ -55,7 +59,7 @@ def getBCVal(e, size):
 
 def goodness(v, e, n):
     global S
-    return(-n * getBCVal(e, S[v]) / S[v])
+    return(-n * getBCVal(e, S[v]) / S[v] ** 3)
 
 def get_arr(inp):
     return([int(k) for k in inp.readline().split()])
@@ -71,7 +75,7 @@ def read_file(filename):
 
     global CachedVideos, Endpoints
     for c in range(C):
-        CachedVideos[c] = []
+        CachedVideos[c] = Set()
         Endpoints[c] = []
 
     global BestCache
@@ -99,13 +103,16 @@ def read_file(filename):
 def addVideo(v, BC):
     if v in CachedVideos[BC]:
         return
-    for e in Endpoints[BC]:
-        if (e, v) in CVE.keys():
-            if Latencies[e][BC] < Latencies[e][CVE[(e, v)]]:
-                CVE[(e, v)] = BC
-        else:
-            CVE[(e, v)] = BC
-    CachedVideos[BC].append(v)
+#    for e in Endpoints[BC]:
+#        if (e, v) in CVE.keys():
+#            if Latencies[e][BC] < Latencies[e][CVE[(e, v)]]:
+#                CVE[(e, v)] = BC
+#        else:
+#            CVE[(e, v)] = BC
+
+    CachedVideos[BC].add(v)
+    global SizeUsed, S
+    SizeUsed += S[v]
 
 def printState():
     print("VERCX: " + str((V, E, R, C, X)))
@@ -125,15 +132,15 @@ def processQ():
     g = req[0]
     g2 = goodness(v, e, n)
     if g2 != g:
-        heapq.heappush(RH, (g2, req[1], v, e, n))
+#        heapq.heappush(RH, (g2, req[1], v, e, n))
         return
 
     BC = getBC(e, S[v])
     if BC < 0:
         return
-    if (e, v) in CVE.keys():
-        if BC != CVE[(e, v)]:
-            return
+#    if (e, v) in CVE.keys():
+#        if BC != CVE[(e, v)]:
+#            return
     addVideo(v, BC)
 
 def write_answer(filename):
@@ -200,10 +207,9 @@ def getReward():
         reqs += n
         best_val = 0
         for cc in BestCache[e]:
-            for vv in CachedVideos[cc[0]]:
-                if vv == v:
-                    if cc[1] > best_val:
-                        best_val = cc[1]
+            if v in CachedVideos[cc[0]]:
+                if cc[1] > best_val:
+                    best_val = cc[1]
         best_val *= n
         s += best_val
     print(s, reqs)
@@ -217,13 +223,17 @@ def main():
 
     print("Reading done")
 
-    printState()
+    global CVE
+    #printState()
     i = 0
     while len(RH) > 0:
-        print(i, len(RH), len(CVE))
-        cProfile.run('processQ()')
+        print(i, len(RH), len(CVE), C * X, SizeUsed)
+        #cProfile.run('processQ()')
+        processQ()
+        if len(CVE) > 1000:
+            CVE = {}
         i += 1
-    printState()
+    #printState()
 
     write_answer(sys.argv[2])
     print("REWARD: {}".format(getReward()))
